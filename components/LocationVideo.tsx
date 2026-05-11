@@ -1,10 +1,28 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 export default function LocationVideo() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [paused, setPaused] = useState(false)
+
+  // Start loading + playing only when the video scrolls into view
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.load()
+          video.play().catch(() => {})
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.25 }
+    )
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
 
   const toggle = () => {
     const v = videoRef.current
@@ -22,7 +40,7 @@ export default function LocationVideo() {
         <video
           ref={videoRef}
           src="/videos/location.mp4"
-          autoPlay
+          preload="none"
           muted
           loop
           playsInline

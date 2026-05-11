@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 const slides = Array.from({ length: 10 }, (_, i) => `/images/dresscode${i + 1}.jpg`)
 
@@ -26,10 +27,11 @@ export default function DressCodeSlider() {
             </span>
           </div>
         ) : (
-          <img
+          <Image
             src={slides[current]}
             alt={`dress code фото ${current + 1}`}
-            className="w-full h-full object-cover transition-opacity duration-500"
+            fill
+            className="object-cover transition-opacity duration-500"
             onError={() => setImgError((e) => ({ ...e, [current]: true }))}
           />
         )}
