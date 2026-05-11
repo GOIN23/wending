@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --burgundy: #7C1A24;
+  --gold: #C9913A;
+  --amber: #C47832;
+  --cream: #FAF3E8;
+  --cream-dark: #F0E5D0;
+  --forest-dark: #1C0A06;
+  --forest-mid: #3C1C0C;
+  --gold-light: #E8C070;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--forest-dark);
+  font-family: var(--font-cormorant), Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Decorative divider */
+.divider-gold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.divider-gold::before,
+.divider-gold::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #C9913A, transparent);
+  max-width: 120px;
+}
+
+/* Elegant text shadow */
+.text-glow {
+  text-shadow: 0 2px 20px rgba(201, 145, 58, 0.3);
+}
+
+/* Fade in on scroll - base state */
+.fade-in-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.fade-in-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero overlay — текст читается, фото видно */
+.hero-overlay {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(10, 4, 2, 0.72) 0%,
+      rgba(10, 4, 2, 0.30) 35%,
+      rgba(10, 4, 2, 0.30) 65%,
+      rgba(10, 4, 2, 0.78) 100%
+    );
+}
+
+/* Wavy timeline connector */
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  border: 2px solid var(--gold-light);
+  flex-shrink: 0;
+}
+
+/* Gallery hover */
+.gallery-item {
+  overflow: hidden;
+}
+.gallery-item img {
+  transition: transform 0.5s ease;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--burgundy);
+  border-radius: 3px;
+}
+
+/* Print / selection color */
+::selection {
+  background: rgba(201, 145, 58, 0.25);
+  color: var(--forest-dark);
+}

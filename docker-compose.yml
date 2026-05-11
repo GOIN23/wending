@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    # Позволяет контейнеру подключаться к БД на самом сервере через host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
