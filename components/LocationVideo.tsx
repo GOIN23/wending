@@ -14,7 +14,10 @@ export default function LocationVideo() {
       ([entry]) => {
         if (entry.isIntersecting) {
           video.load()
-          video.play().catch(() => {})
+          const tryPlay = () => video.play().catch(() => {})
+          video.addEventListener('canplay', tryPlay, { once: true })
+          // Fallback: если canplay уже произошёл
+          if (video.readyState >= 3) tryPlay()
           observer.disconnect()
         }
       },
@@ -41,6 +44,7 @@ export default function LocationVideo() {
           ref={videoRef}
           src="/videos/location.mp4"
           preload="none"
+          autoPlay
           muted
           loop
           playsInline

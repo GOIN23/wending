@@ -8,16 +8,16 @@ export default function ParallaxQuote() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    // На тач-устройствах (iOS/Android) параллакс вызывает лаг — отключаем
+    const isTouch = window.matchMedia('(pointer: coarse)').matches
+
     const onScroll = () => {
       if (!sectionRef.current || !bgRef.current) return
-
       const rect = sectionRef.current.getBoundingClientRect()
-
-      // Parallax: фон движется в 0.35 скорости страницы
-      const offset = -rect.top * 0.35
-      bgRef.current.style.transform = `translateY(${offset}px)`
-
-      // Появление текста
+      if (!isTouch) {
+        const offset = -rect.top * 0.35
+        bgRef.current.style.transform = `translateY(${offset}px)`
+      }
       if (rect.top < window.innerHeight * 0.75) setVisible(true)
     }
 
