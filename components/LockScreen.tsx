@@ -53,6 +53,8 @@ export default function LockScreen() {
   const unlock = useCallback(() => {
     if (unlocking) return
     setUnlocking(true)
+    // Запускаем музыку в контексте пользовательского жеста (нужно для iOS Safari)
+    document.dispatchEvent(new Event('wedding:unlocked'))
     setTimeout(() => setHidden(true), 700)
   }, [unlocking])
 

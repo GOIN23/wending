@@ -11,7 +11,8 @@ export default function Hero() {
           fill
           priority
           quality={85}
-          className="object-cover object-top"
+          className="object-cover"
+          style={{ objectPosition: 'center 65%' }}
         />
       </div>
 
@@ -50,9 +51,9 @@ export default function Hero() {
         </div>
 
         {/* Date */}
-        <p className="font-cormorant font-semibold text-2xl sm:text-3xl md:text-4xl tracking-[0.25em] pl-[0.25em] uppercase text-gold mb-0.5"
+        <p className="font-cormorant font-semibold text-2xl sm:text-3xl md:text-4xl tracking-[0.25em] pl-[0.25em] text-gold mb-0.5"
           style={{ textShadow: '0 0 24px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.8), 0 2px 12px rgba(201,145,58,0.4)' }}>
-          01 · Октябрь · 2026
+          01 · Октября · 2026
         </p>
         <p className="font-montserrat text-xs sm:text-sm tracking-[0.4em] pl-[0.4em] uppercase text-white/60"
           style={{ textShadow: '0 0 16px rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.8)' }}>

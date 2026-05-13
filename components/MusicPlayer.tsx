@@ -15,9 +15,15 @@ export default function MusicPlayer() {
     audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
 
+    const onUnlocked = () => {
+      audio.play().then(() => setPlaying(true)).catch(() => {})
+    }
+    document.addEventListener('wedding:unlocked', onUnlocked, { once: true })
+
     return () => {
       audio.pause()
       audio.src = ''
+      document.removeEventListener('wedding:unlocked', onUnlocked)
     }
   }, [])
 

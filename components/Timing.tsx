@@ -65,10 +65,10 @@ export default function Timing() {
           {/* Left: title + date */}
           <FadeIn className="text-center md:text-left">
             <p className="font-montserrat text-xs sm:text-sm tracking-[0.5em] uppercase text-[#3C1C0C]/50 mb-1">
-              Timing of
+              День
             </p>
             <h2 className="font-cormorant font-light text-5xl sm:text-6xl md:text-7xl text-burgundy mb-4">
-              The Day
+              Свадьбы
             </h2>
             <div className="flex items-center gap-2 justify-center md:justify-start mb-4">
               <div className="h-px w-8 sm:w-12 bg-gold/50" />
@@ -76,10 +76,10 @@ export default function Timing() {
               <div className="h-px w-8 sm:w-12 bg-gold/50" />
             </div>
             <p className="font-cormorant text-lg sm:text-xl text-[#3C1C0C]/60 tracking-widest mb-1">
-              01 | october | 2026
+              01 | октября | 2026
             </p>
             <p className="font-montserrat text-xs tracking-[0.35em] uppercase text-[#3C1C0C]/40">
-              friday
+              четверг
             </p>
 
             {/* Countdown lives here on desktop */}
