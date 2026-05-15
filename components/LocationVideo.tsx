@@ -6,28 +6,24 @@ import { registerVideoStart } from '@/lib/videoStore'
 export default function LocationVideo() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [paused, setPaused] = useState(false)
-  const startedRef = useRef(false)
-
-  const startVideo = () => {
-    const video = videoRef.current
-    if (!video || startedRef.current) return
-    startedRef.current = true
-    video.muted = true
-    video.play().catch(() => {})
-  }
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    // Запускаем одновременно с музыкой (в жесте разблокировки) — iOS не прерывает аудио
-    registerVideoStart(startVideo)
+    // Попытка запустить в том же жесте что и музыка (iOS audio session)
+    registerVideoStart(() => {
+      video.muted = true
+      video.play().catch(() => {})
+    })
 
-    // Запасной вариант для десктопа или если videoStore не сработал
+    // IntersectionObserver всегда запускает когда видео в экране
+    // (если videoStore уже запустил — play() на играющем видео это no-op)
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          startVideo()
+          video.muted = true
+          video.play().catch(() => {})
           observer.disconnect()
         }
       },
