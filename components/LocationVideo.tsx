@@ -1,34 +1,35 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
+import { registerVideoStart } from '@/lib/videoStore'
 
 export default function LocationVideo() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [paused, setPaused] = useState(false)
+  const [started, setStarted] = useState(false)
 
-  // Start loading + playing only when the video scrolls into view
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.muted = true // явно как JS-свойство, браузер точно знает что без звука
-          video.play().catch(() => {})
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.25 }
-    )
-    observer.observe(video)
-    return () => observer.disconnect()
+
+    // Запускаем в том же жесте разблокировки что и музыку — без конфликта iOS audio-сессии
+    registerVideoStart(() => {
+      video.muted = true
+      video.play().catch(() => {})
+      setStarted(true)
+    })
   }, [])
 
   const toggle = () => {
     const v = videoRef.current
     if (!v) return
-    if (v.paused) { v.play(); setPaused(false) }
-    else { v.pause(); setPaused(true) }
+    if (v.paused) {
+      v.play().catch(() => {})
+      setPaused(false)
+    } else {
+      v.pause()
+      setPaused(true)
+    }
   }
 
   return (
@@ -41,7 +42,6 @@ export default function LocationVideo() {
           ref={videoRef}
           src="/videos/location.mp4"
           preload="none"
-          autoPlay
           muted
           loop
           playsInline
