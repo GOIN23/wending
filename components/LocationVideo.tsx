@@ -13,11 +13,8 @@ export default function LocationVideo() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.load()
-          const tryPlay = () => video.play().catch(() => {})
-          video.addEventListener('canplay', tryPlay, { once: true })
-          // Fallback: если canplay уже произошёл
-          if (video.readyState >= 3) tryPlay()
+          video.muted = true // явно как JS-свойство, браузер точно знает что без звука
+          video.play().catch(() => {})
           observer.disconnect()
         }
       },
