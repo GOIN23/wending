@@ -6,30 +6,42 @@ import { registerVideoStart } from '@/lib/videoStore'
 export default function LocationVideo() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [paused, setPaused] = useState(false)
-  const [started, setStarted] = useState(false)
+  const startedRef = useRef(false)
+
+  const startVideo = () => {
+    const video = videoRef.current
+    if (!video || startedRef.current) return
+    startedRef.current = true
+    video.muted = true
+    video.play().catch(() => {})
+  }
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    // Запускаем в том же жесте разблокировки что и музыку — без конфликта iOS audio-сессии
-    registerVideoStart(() => {
-      video.muted = true
-      video.play().catch(() => {})
-      setStarted(true)
-    })
+    // Запуск в жесте разблокировки (одновременно с музыкой) — предотвращает конфликт iOS
+    registerVideoStart(startVideo)
+
+    // Запасной вариант — через IntersectionObserver когда видео появляется в экране
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          startVideo()
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.25 }
+    )
+    observer.observe(video)
+    return () => observer.disconnect()
   }, [])
 
   const toggle = () => {
     const v = videoRef.current
     if (!v) return
-    if (v.paused) {
-      v.play().catch(() => {})
-      setPaused(false)
-    } else {
-      v.pause()
-      setPaused(true)
-    }
+    if (v.paused) { v.play().catch(() => {}); setPaused(false) }
+    else { v.pause(); setPaused(true) }
   }
 
   return (
@@ -41,7 +53,7 @@ export default function LocationVideo() {
         <video
           ref={videoRef}
           src="/videos/location.mp4"
-          preload="none"
+          preload="metadata"
           muted
           loop
           playsInline
@@ -57,7 +69,7 @@ export default function LocationVideo() {
         <button
           onClick={toggle}
           aria-label={paused ? 'Воспроизвести' : 'Пауза'}
-          className="absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-black/50 hover:text-white transition-all duration-200 opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
+          className="absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-black/50 hover:text-white transition-all duration-200 opacity-0 hover:opacity-100 focus:opacity-100"
           style={{ opacity: paused ? 1 : undefined }}
         >
           {paused ? (
