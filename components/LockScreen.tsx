@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { triggerPlay } from '@/lib/audioStore'
-import { triggerVideoStart } from '@/lib/videoStore'
 
 const BUTTON_SIZE = 56
 
@@ -55,7 +54,6 @@ export default function LockScreen() {
   const unlock = useCallback(() => {
     if (unlocking) return
     setUnlocking(true)
-    triggerVideoStart()
     triggerPlay()
     setTimeout(() => setHidden(true), 700)
   }, [unlocking])

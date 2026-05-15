@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { registerPlay } from '@/lib/audioStore'
+import { registerPlay, registerVideoControls } from '@/lib/audioStore'
 
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const userPausedRef = useRef(false) // true когда пользователь сам нажал паузу
+  const userPausedRef = useRef(false)
+  const wasPlayingBeforeVideoRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
@@ -16,14 +17,6 @@ export default function MusicPlayer() {
     audio.addEventListener('canplaythrough', () => setLoaded(true))
     audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
-
-    // Если браузер остановил музыку (из-за видео) — возобновляем мгновенно
-    const onPause = () => {
-      if (!userPausedRef.current) {
-        audio.play().catch(() => {})
-      }
-    }
-    audio.addEventListener('pause', onPause)
 
     // Разблокируем audio-контекст при первом касании/клике (iOS Safari требует)
     const silentUnlock = () => {
@@ -37,6 +30,26 @@ export default function MusicPlayer() {
       audio.currentTime = 0
       audio.play().then(() => setPlaying(true)).catch(() => {})
     })
+
+    // Когда пользователь запускает видео — ставим музыку на паузу
+    // Когда останавливает видео — возобновляем если музыка играла
+    registerVideoControls(
+      () => {
+        wasPlayingBeforeVideoRef.current = !audio.paused
+        if (!audio.paused) {
+          userPausedRef.current = true
+          audio.pause()
+          setPlaying(false)
+        }
+      },
+      () => {
+        if (wasPlayingBeforeVideoRef.current) {
+          userPausedRef.current = false
+          audio.play().then(() => setPlaying(true)).catch(() => {})
+          wasPlayingBeforeVideoRef.current = false
+        }
+      }
+    )
 
     return () => {
       audio.pause()
@@ -92,23 +105,16 @@ export default function MusicPlayer() {
           aria-label={playing ? 'Пауза' : 'Воспроизвести'}
           className="group relative inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-gold/40 hover:border-gold transition-colors duration-500 focus:outline-none"
         >
-          {/* Pulsing ring when playing */}
           {playing && (
             <span className="absolute inset-0 rounded-full border border-gold/20 animate-ping" />
           )}
-
-          {/* Inner circle */}
           <span className="absolute inset-2 rounded-full bg-gold/10 group-hover:bg-gold/20 transition-colors duration-300" />
-
-          {/* Icon */}
           <span className="relative z-10 text-gold">
             {playing ? (
-              /* Pause icon */
               <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
               </svg>
             ) : (
-              /* Play icon */
               <svg className="w-7 h-7 sm:w-8 sm:h-8 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
