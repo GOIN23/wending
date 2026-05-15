@@ -17,6 +17,14 @@ export default function MusicPlayer() {
     audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
 
+    // Если браузер остановил музыку (из-за видео) — возобновляем мгновенно
+    const onPause = () => {
+      if (!userPausedRef.current) {
+        audio.play().catch(() => {})
+      }
+    }
+    audio.addEventListener('pause', onPause)
+
     // Разблокируем audio-контекст при первом касании/клике (iOS Safari требует)
     const silentUnlock = () => {
       audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
