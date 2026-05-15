@@ -22,13 +22,6 @@ export default function MusicPlayer() {
     }
     audio.addEventListener('pause', onPause)
 
-    // Разблокируем audio-контекст на первое касание (iOS Safari)
-    const silentUnlock = () => {
-      audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
-    }
-    document.addEventListener('touchstart', silentUnlock, { once: true, passive: true })
-    document.addEventListener('mousedown', silentUnlock, { once: true })
-
     registerPlay(() => {
       userPausedRef.current = false
       audio.currentTime = 0
@@ -39,8 +32,6 @@ export default function MusicPlayer() {
       audio.removeEventListener('pause', onPause)
       audio.pause()
       audio.src = ''
-      document.removeEventListener('touchstart', silentUnlock)
-      document.removeEventListener('mousedown', silentUnlock)
     }
   }, [])
 
