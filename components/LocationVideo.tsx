@@ -1,74 +1,84 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { pauseMusicForVideo, resumeMusicAfterVideo } from '@/lib/audioStore'
+import { useRef, useState, useEffect } from 'react'
+import { registerVideoStart } from '@/lib/videoStore'
 
 export default function LocationVideo() {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [playing, setPlaying] = useState(false)
+  const [paused, setPaused] = useState(false)
+  const startedRef = useRef(false)
 
-  const handlePlay = () => {
-    const v = videoRef.current
-    if (!v) return
-    pauseMusicForVideo()
-    v.play().then(() => setPlaying(true)).catch(() => {})
+  const startVideo = () => {
+    const video = videoRef.current
+    if (!video || startedRef.current) return
+    startedRef.current = true
+    video.muted = true
+    video.play().catch(() => {})
   }
 
-  const handlePause = () => {
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    // Запускаем одновременно с музыкой (в жесте разблокировки) — iOS не прерывает аудио
+    registerVideoStart(startVideo)
+
+    // Запасной вариант для десктопа или если videoStore не сработал
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          startVideo()
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.25 }
+    )
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
+
+  const toggle = () => {
     const v = videoRef.current
     if (!v) return
-    v.pause()
-    setPlaying(false)
-    resumeMusicAfterVideo()
+    if (v.paused) { v.play().catch(() => {}); setPaused(false) }
+    else { v.pause(); setPaused(true) }
   }
 
   return (
     <div className="relative">
-      {/* Decorative offset frame */}
       <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-full h-full border border-gold/30 rounded-lg pointer-events-none" />
 
       <div className="relative aspect-[4/3] sm:aspect-[3/2] md:aspect-[4/3] rounded-lg overflow-hidden bg-[#3C1C0C]/30">
         <video
           ref={videoRef}
           src="/videos/location.mp4"
-          preload="none"
+          preload="metadata"
+          muted
           loop
           playsInline
           className="w-full h-full object-cover"
         />
 
-        {/* Dark vignette edges */}
         <div className="absolute inset-0 pointer-events-none"
           style={{ boxShadow: 'inset 0 0 60px rgba(28,10,6,0.25)' }}
         />
 
-        {/* Большая кнопка Play — пока видео не запущено */}
-        {!playing && (
-          <button
-            onClick={handlePlay}
-            aria-label="Воспроизвести"
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <span className="w-16 h-16 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-sm border border-white/30 text-white/90 transition-all duration-200 active:bg-black/60 hover:bg-black/60">
-              <svg className="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </span>
-          </button>
-        )}
-
-        {/* Маленькая кнопка Pause — пока видео играет */}
-        {playing && (
-          <button
-            onClick={handlePause}
-            aria-label="Пауза"
-            className="absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-black/50 hover:text-white transition-all duration-200"
-          >
+        <button
+          onClick={toggle}
+          aria-label={paused ? 'Воспроизвести' : 'Пауза'}
+          className="absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white/80 hover:bg-black/50 hover:text-white transition-all duration-200 opacity-0 hover:opacity-100 focus:opacity-100"
+          style={{ opacity: paused ? 1 : undefined }}
+        >
+          {paused ? (
+            <svg className="w-3.5 h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          ) : (
             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
-          </button>
-        )}
+          )}
+        </button>
       </div>
     </div>
   )

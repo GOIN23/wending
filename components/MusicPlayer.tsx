@@ -1,24 +1,28 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { registerPlay, registerVideoControls } from '@/lib/audioStore'
+import { registerPlay } from '@/lib/audioStore'
 
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
-  const [loaded, setLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const userPausedRef = useRef(false)
-  const wasPlayingBeforeVideoRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
     audio.loop = true
     audio.preload = 'metadata'
-    audio.addEventListener('canplaythrough', () => setLoaded(true))
-    audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
 
-    // Разблокируем audio-контекст при первом касании/клике (iOS Safari требует)
+    // Если браузер прервал музыку (не пользователь) — возобновляем
+    const onPause = () => {
+      if (!userPausedRef.current) {
+        audio.play().catch(() => {})
+      }
+    }
+    audio.addEventListener('pause', onPause)
+
+    // Разблокируем audio-контекст на первое касание (iOS Safari)
     const silentUnlock = () => {
       audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
     }
@@ -31,27 +35,8 @@ export default function MusicPlayer() {
       audio.play().then(() => setPlaying(true)).catch(() => {})
     })
 
-    // Когда пользователь запускает видео — ставим музыку на паузу
-    // Когда останавливает видео — возобновляем если музыка играла
-    registerVideoControls(
-      () => {
-        wasPlayingBeforeVideoRef.current = !audio.paused
-        if (!audio.paused) {
-          userPausedRef.current = true
-          audio.pause()
-          setPlaying(false)
-        }
-      },
-      () => {
-        if (wasPlayingBeforeVideoRef.current) {
-          userPausedRef.current = false
-          audio.play().then(() => setPlaying(true)).catch(() => {})
-          wasPlayingBeforeVideoRef.current = false
-        }
-      }
-    )
-
     return () => {
+      audio.removeEventListener('pause', onPause)
       audio.pause()
       audio.src = ''
       document.removeEventListener('touchstart', silentUnlock)
@@ -62,7 +47,6 @@ export default function MusicPlayer() {
   const toggle = () => {
     const audio = audioRef.current
     if (!audio) return
-
     if (playing) {
       userPausedRef.current = true
       audio.pause()
@@ -75,14 +59,12 @@ export default function MusicPlayer() {
 
   return (
     <section className="py-16 sm:py-20 px-6 bg-[#1C0A06] relative overflow-hidden">
-      {/* Subtle background rings */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full border border-gold/5" />
         <div className="absolute w-96 h-96 sm:w-[480px] sm:h-[480px] rounded-full border border-gold/5" />
       </div>
 
       <div className="relative z-10 max-w-xl mx-auto text-center">
-        {/* Top label */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="h-px w-8 sm:w-14 bg-gold/30" />
           <svg className="w-4 h-4 text-gold/60" fill="currentColor" viewBox="0 0 24 24">
@@ -91,7 +73,6 @@ export default function MusicPlayer() {
           <div className="h-px w-8 sm:w-14 bg-gold/30" />
         </div>
 
-        {/* Invitation text */}
         <p className="font-cormorant italic text-xl sm:text-2xl md:text-3xl text-white/80 leading-relaxed mb-2">
           Нажмите play и погрузитесь
         </p>
@@ -99,7 +80,6 @@ export default function MusicPlayer() {
           в атмосферу нашей любви
         </p>
 
-        {/* Play / Pause button */}
         <button
           onClick={toggle}
           aria-label={playing ? 'Пауза' : 'Воспроизвести'}
@@ -122,7 +102,6 @@ export default function MusicPlayer() {
           </span>
         </button>
 
-        {/* State label */}
         <p className="mt-5 font-montserrat text-[10px] tracking-[0.4em] uppercase text-white/30">
           {playing ? 'playing' : 'press to play'}
         </p>
