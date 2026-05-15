@@ -22,6 +22,13 @@ export default function MusicPlayer() {
     }
     audio.addEventListener('pause', onPause)
 
+    // iOS Safari: разблокируем audio-контекст через нативный touchstart
+    // (React делегирует события и теряет жест-контекст — нужен прямой listener)
+    const silentUnlock = () => {
+      audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
+    }
+    document.addEventListener('touchstart', silentUnlock, { once: true, passive: true })
+
     registerPlay(() => {
       userPausedRef.current = false
       audio.currentTime = 0
@@ -30,6 +37,7 @@ export default function MusicPlayer() {
 
     return () => {
       audio.removeEventListener('pause', onPause)
+      document.removeEventListener('touchstart', silentUnlock)
       audio.pause()
       audio.src = ''
     }
