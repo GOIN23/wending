@@ -11,18 +11,28 @@ export default function MusicPlayer() {
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
     audio.loop = true
-    audio.preload = 'none'
+    audio.preload = 'metadata'
     audio.addEventListener('canplaythrough', () => setLoaded(true))
     audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
 
+    // Разблокируем audio-контекст при первом касании/клике (iOS Safari требует)
+    const silentUnlock = () => {
+      audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
+    }
+    document.addEventListener('touchstart', silentUnlock, { once: true, passive: true })
+    document.addEventListener('mousedown', silentUnlock, { once: true })
+
     registerPlay(() => {
+      audio.currentTime = 0
       audio.play().then(() => setPlaying(true)).catch(() => {})
     })
 
     return () => {
       audio.pause()
       audio.src = ''
+      document.removeEventListener('touchstart', silentUnlock)
+      document.removeEventListener('mousedown', silentUnlock)
     }
   }, [])
 
