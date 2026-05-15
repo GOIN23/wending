@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { triggerPlay } from '@/lib/audioStore'
 
 const BUTTON_SIZE = 56
 
@@ -53,8 +54,7 @@ export default function LockScreen() {
   const unlock = useCallback(() => {
     if (unlocking) return
     setUnlocking(true)
-    // Запускаем музыку в контексте пользовательского жеста (нужно для iOS Safari)
-    document.dispatchEvent(new Event('wedding:unlocked'))
+    triggerPlay()
     setTimeout(() => setHidden(true), 700)
   }, [unlocking])
 
