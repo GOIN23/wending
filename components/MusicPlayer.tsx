@@ -7,6 +7,7 @@ export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const userPausedRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
@@ -16,6 +17,14 @@ export default function MusicPlayer() {
     audio.addEventListener('error', () => setLoaded(false))
     audioRef.current = audio
 
+    // Если браузер остановил музыку (из-за видео) — возобновляем автоматически
+    const onPause = () => {
+      if (!userPausedRef.current) {
+        setTimeout(() => audio.play().catch(() => {}), 300)
+      }
+    }
+    audio.addEventListener('pause', onPause)
+
     // Разблокируем audio-контекст при первом касании/клике (iOS Safari требует)
     const silentUnlock = () => {
       audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
@@ -24,6 +33,7 @@ export default function MusicPlayer() {
     document.addEventListener('mousedown', silentUnlock, { once: true })
 
     registerPlay(() => {
+      userPausedRef.current = false
       audio.currentTime = 0
       audio.play().then(() => setPlaying(true)).catch(() => {})
     })
@@ -41,9 +51,11 @@ export default function MusicPlayer() {
     if (!audio) return
 
     if (playing) {
+      userPausedRef.current = true
       audio.pause()
       setPlaying(false)
     } else {
+      userPausedRef.current = false
       audio.play().then(() => setPlaying(true)).catch(() => {})
     }
   }
