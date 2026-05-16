@@ -7,6 +7,7 @@ export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const userPausedRef = useRef(false)
+  const unlockingRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
@@ -16,7 +17,7 @@ export default function MusicPlayer() {
 
     // Если браузер прервал музыку (не пользователь) — возобновляем
     const onPause = () => {
-      if (!userPausedRef.current) {
+      if (!userPausedRef.current && !unlockingRef.current) {
         audio.play().catch(() => {})
       }
     }
@@ -25,7 +26,11 @@ export default function MusicPlayer() {
     // iOS Safari: разблокируем audio-контекст через нативный touchstart
     // (React делегирует события и теряет жест-контекст — нужен прямой listener)
     const silentUnlock = () => {
-      audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
+      unlockingRef.current = true
+      audio.play()
+        .then(() => { audio.pause(); audio.currentTime = 0 })
+        .catch(() => {})
+        .finally(() => { unlockingRef.current = false })
     }
     document.addEventListener('touchstart', silentUnlock, { once: true, passive: true })
 
