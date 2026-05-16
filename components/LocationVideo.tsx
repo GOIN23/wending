@@ -11,14 +11,13 @@ export default function LocationVideo() {
     const video = videoRef.current
     if (!video) return
 
-    // Попытка запустить в том же жесте что и музыка (iOS audio session)
+    // Запускаем в жесте разблокировки вместе с музыкой — iOS не создаёт новую аудио-сессию
     registerVideoStart(() => {
       video.muted = true
       video.play().catch(() => {})
     })
 
-    // IntersectionObserver всегда запускает когда видео в экране
-    // (если videoStore уже запустил — play() на играющем видео это no-op)
+    // Запасной вариант если autoPlay или videoStore не сработал
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -27,7 +26,7 @@ export default function LocationVideo() {
           observer.disconnect()
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.1 }
     )
     observer.observe(video)
     return () => observer.disconnect()
@@ -48,7 +47,8 @@ export default function LocationVideo() {
         <video
           ref={videoRef}
           src="/videos/location.mp4"
-          preload="metadata"
+          preload="auto"
+          autoPlay
           muted
           loop
           playsInline
