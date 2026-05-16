@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { triggerPlay } from '@/lib/audioStore'
+import { triggerPlay, triggerPreunlock } from '@/lib/audioStore'
 
 const BUTTON_SIZE = 56
 
@@ -87,6 +87,7 @@ export default function LockScreen() {
 
   // Touch
   const onTouchStart = (e: React.TouchEvent) => {
+    triggerPreunlock()
     isDragging.current = true
     startXRef.current = e.touches[0].clientX
   }

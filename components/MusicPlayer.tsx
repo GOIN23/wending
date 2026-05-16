@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { registerPlay } from '@/lib/audioStore'
+import { registerPlay, registerPreunlock } from '@/lib/audioStore'
 
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const userPausedRef = useRef(false)
-  const startedRef = useRef(false)
+  const unlockedRef = useRef(false)
 
   useEffect(() => {
     const audio = new Audio('/music/wedding.mp3')
@@ -15,24 +15,21 @@ export default function MusicPlayer() {
     audio.preload = 'metadata'
     audioRef.current = audio
 
-    // iOS Safari требует вызова play() внутри пользовательского жеста.
-    // Первое касание тихо разблокирует аудио-контекст: play → pause.
-    // onPause не используем — иначе получается петля play→pause→play.
-    const silentUnlock = () => {
-      if (startedRef.current) return
+    // Вызывается из LockScreen только при касании кнопки слайдера —
+    // разблокирует iOS-аудиоконтекст без запуска музыки.
+    registerPreunlock(() => {
+      if (unlockedRef.current) return
+      unlockedRef.current = true
       audio.play().then(() => { audio.pause(); audio.currentTime = 0 }).catch(() => {})
-    }
-    document.addEventListener('touchstart', silentUnlock, { once: true, passive: true })
+    })
 
     registerPlay(() => {
-      startedRef.current = true
       userPausedRef.current = false
       audio.currentTime = 0
       audio.play().then(() => setPlaying(true)).catch(() => {})
     })
 
     return () => {
-      document.removeEventListener('touchstart', silentUnlock)
       audio.pause()
       audio.src = ''
     }
