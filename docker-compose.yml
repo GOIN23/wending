@@ -3,9 +3,16 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       - DATABASE_URL=${DATABASE_URL}
-    # Позволяет контейнеру подключаться к БД на самом сервере через host.docker.internal
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    mem_limit: 1g
+    memswap_limit: 1500m
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
