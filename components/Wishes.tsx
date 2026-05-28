@@ -33,7 +33,7 @@ export default function Wishes() {
             </div>
 
             {/* ЦВЕТЫ */}
-            <div className="text-center">
+            <div className="mb-10 text-center">
               <div className="flex justify-center mb-4">
                 <svg className="w-10 h-10 text-[#7C1A24]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22V12" />
@@ -57,6 +57,31 @@ export default function Wishes() {
               >
                 mate flowers →
               </a>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-10">
+              <div className="flex-1 h-px bg-[#C9913A]/20" />
+              <div className="w-1 h-1 rounded-full bg-[#C9913A]/40" />
+              <div className="flex-1 h-px bg-[#C9913A]/20" />
+            </div>
+
+            {/* ТРАНСФЕР */}
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <svg className="w-10 h-10 text-[#7C1A24]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="15" height="13" rx="1" />
+                  <path d="M16 8h4l3 5v3h-7V8z" />
+                  <circle cx="5.5" cy="18.5" r="2.5" />
+                  <circle cx="18.5" cy="18.5" r="2.5" />
+                </svg>
+              </div>
+              <h3 className="font-cormorant text-3xl sm:text-4xl text-[#7C1A24] tracking-widest uppercase mb-4">
+                Трансфер
+              </h3>
+              <p className="font-montserrat text-xs sm:text-sm tracking-widest uppercase leading-loose text-[#1C0A06]/70">
+                Хотим заранее предупредить, что трансфер до места проведения торжества и после окончания мероприятия не предусмотрен.
+              </p>
             </div>
 
           </div>

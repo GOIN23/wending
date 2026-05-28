@@ -41,7 +41,7 @@ export default function RsvpModal() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (!name.trim()) { setError('Пожалуйста, введите ваше имя'); return }
+    if (!name.trim()) { setError('Пожалуйста, введите имя и фамилию'); return }
 
     startTransition(async () => {
       try {
@@ -110,10 +110,10 @@ export default function RsvpModal() {
 
             {/* Name */}
             <div className="flex flex-col gap-2">
-              <label className="font-cormorant text-xl text-[#7C1A24]">Как вас зовут?</label>
+              <label className="font-cormorant text-xl text-[#7C1A24]">Как вас зовут? <span className="text-[#1C0A06]/40 text-base">(имя и фамилия)</span></label>
               <input
                 type="text"
-                placeholder="Антон, Ира, сын Даня"
+                placeholder="Антон Иванов, Ира Смирнова"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full border border-[#C9913A]/30 bg-white/70 rounded-sm px-4 py-3 font-cormorant text-lg text-[#1C0A06] placeholder:text-[#1C0A06]/25 focus:outline-none focus:border-[#7C1A24]/60 transition-colors"
