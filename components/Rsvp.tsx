@@ -6,6 +6,7 @@ export default function Rsvp() {
     <section className="bg-[#FAF3E8] py-24 px-6">
       <div className="max-w-xl mx-auto flex flex-col items-center text-center gap-10">
 
+        <div hidden>
         <FadeIn>
           <div className="flex flex-col items-center text-center gap-4">
             <div className="flex items-center justify-center gap-3">
@@ -22,6 +23,7 @@ export default function Rsvp() {
             </p>
           </div>
         </FadeIn>
+        </div>
 
         <FadeIn delay={200}>
           <RsvpModal />

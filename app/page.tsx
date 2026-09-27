@@ -7,7 +7,6 @@ import Location from '@/components/Location'
 import ParallaxQuote from '@/components/ParallaxQuote'
 import DressCode from '@/components/DressCode'
 import Wishes from '@/components/Wishes'
-import Rsvp from '@/components/Rsvp'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -22,7 +21,6 @@ export default function Home() {
       <ParallaxQuote />
       <DressCode />
       <Wishes />
-      <Rsvp />
       <Footer />
     </main>
   )
